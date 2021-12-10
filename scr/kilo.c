@@ -138,12 +138,15 @@ void editorRefreshScreen()
    write(STDOUT_FILENO, "\x1b[H", 3);
 }
 
-void editorDrawRows()
-{
+void editorDrawRows() {
    int y;
-   for (y = 0; y < E.screenRows; y++)
+   for (y = 0; y < E.screenRows; y++) 
    {
-      write(STDOUT_FILENO, "~\r\n", 3);
+      write(STDOUT_FILENO, "~", 1);
+      if (y < E.screenRows - 1) 
+      {
+         write(STDOUT_FILENO, "\r\n", 2);
+      }
    }
 }
 
