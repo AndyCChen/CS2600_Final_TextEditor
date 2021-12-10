@@ -68,7 +68,7 @@ void die(const char *s)
 
 void disableRawMode()
 {
-   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.original_termios) == -1)
+   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios) == -1)
    {
       die("tcsetattr");
    }
@@ -76,13 +76,13 @@ void disableRawMode()
 
 void enableRawMode()
 {
-   if (tcgetattr(STDIN_FILENO, &E.original_termios) == -1)
+   if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1)
    {
       die("tcgetattr");
    }
    atexit(disableRawMode);
 
-   struct termios raw = E.original_termios;
+   struct termios raw = E.orig_termios;
    raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
    raw.c_oflag &= ~(OPOST);
    raw.c_cflag |= (CS8);
@@ -402,11 +402,9 @@ void editorMoveCursor(int key) {
   }
 }
 
-void editorProcessKeypress()
-{
+void editorProcessKeypress() {
   int c = editorReadKey();
-  switch (c) 
-  {
+  switch (c) {
     case CTRL_KEY('q'):
       write(STDOUT_FILENO, "\x1b[2J", 4);
       write(STDOUT_FILENO, "\x1b[H", 3);
@@ -421,6 +419,12 @@ void editorProcessKeypress()
     case PAGE_UP:
     case PAGE_DOWN:
       {
+        if (c == PAGE_UP) {
+          E.cy = E.rowoff;
+        } else if (c == PAGE_DOWN) {
+          E.cy = E.rowoff + E.screenrows - 1;
+          if (E.cy > E.numrows) E.cy = E.numrows;
+        }
         int times = E.screenrows;
         while (times--)
           editorMoveCursor(c == PAGE_UP ? ARROW_UP : ARROW_DOWN);
