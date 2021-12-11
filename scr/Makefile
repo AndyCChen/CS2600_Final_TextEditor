@@ -1,7 +1,6 @@
 CC=gcc
 
 all: kilo.o
-	clear
 	$(CC) kilo.o -Wall -Wextra -pedantic -std=c99
 
 kilo.o: kilo.c
